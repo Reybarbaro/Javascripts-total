@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego de Preguntas</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    #quiz { margin-top: 20px; }
+    button { margin: 5px; padding: 10px; }
+    #timer { font-weight: bold; margin: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>Juego de Preguntas</h1>
+  <div id="quiz">
+    <div id="timer">Tiempo: 10</div>
+    <p id="question"></p>
+    <div id="options"></div>
+    <p id="resultado"></p>
+    <button id="nextBtn" style="display:none;">Siguiente</button>
+  </div>
+  <p id="puntos">Puntos: 0</p>
+
+  <script>
+    const preguntas = [
+      { q:"¿Capital de España?", opciones:["Madrid","Barcelona","Valencia","Sevilla"], correcta:0 },
+      { q:"¿2+2?", opciones:["3","4","5","6"], correcta:1 },
+      { q:"¿Planeta rojo?", opciones:["Venus","Marte","Júpiter","Saturno"], correcta:1 }
+    ];
+
+    let indice = 0, puntos = 0, tiempo = 10, intervalo;
+
+    const qEl = document.getElementById("question");
+    const optEl = document.getElementById("options");
+    const timerEl = document.getElementById("timer");
+    const resEl = document.getElementById("resultado");
+    const nextBtn = document.getElementById("nextBtn");
+    const puntosEl = document.getElementById("puntos");
+
+    function mostrarPregunta(){
+      clearInterval(intervalo);
+      tiempo = 10;
+      timerEl.textContent = "Tiempo: " + tiempo;
+      intervalo = setInterval(()=>{
+        tiempo--;
+        timerEl.textContent = "Tiempo: " + tiempo;
+        if(tiempo <= 0){
+          clearInterval(intervalo);
+          resEl.textContent = "⏰ Tiempo agotado";
+          bloquear();
+          nextBtn.style.display = "inline";
+        }
+      },1000);
+
+      const p = preguntas[indice];
+      qEl.textContent = p.q;
+      optEl.innerHTML = "";
+      resEl.textContent = "";
+      p.opciones.forEach((texto,i)=>{
+        const b = document.createElement("button");
+        b.textContent = texto;
+        b.onclick = ()=> responder(i);
+        optEl.appendChild(b);
+      });
+      nextBtn.style.display = "none";
+    }
+
+    function responder(i){
+      clearInterval(intervalo);
+      const p = preguntas[indice];
+      if(i === p.correcta){
+        resEl.textContent = "✅ Correcto";
+        puntos += 10;
+        puntosEl.textContent = "Puntos: " + puntos;
+      } else {
+        resEl.textContent = "❌ Incorrecto";
+      }
+      bloquear();
+      nextBtn.style.display = "inline";
+    }
+
+    function bloquear(){
+      optEl.querySelectorAll("button").forEach(b=> b.disabled = true);
+    }
+
+    nextBtn.onclick = ()=>{
+      indice++;
+      if(indice < preguntas.length){
+        mostrarPregunta();
+      } else {
+        qEl.textContent = "Juego terminado";
+        optEl.innerHTML = "";
+        timerEl.textContent = "";
+        resEl.textContent = "Puntuación final: " + puntos;
+        nextBtn.style.display = "none";
+      }
+    };
+
+    mostrarPregunta();
+  </script>
+</body>
+</html>
